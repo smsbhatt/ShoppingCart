@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JSP Page</title>
+    </head>
+    <body onload="return display()">
+        <script>
+            function display(){
+                if (localStorage && localStorage.getItem('Address')) {
+        var Address = JSON.parse(localStorage.getItem('Address'));
+         document.f1.FName.value=Address.FName;
+        document.f1.LName.value=Address.LName;
+        document.f1.PhoneNo.value=Address.Mob;
+        document.f1.Email.value=Address.Email;
+        document.f1.Address.value=Address.Address;
+                }
+            }
+            
+            
+        function formValidate(){  
+    var FName=document.f1.FName.value;
+    var LName=document.f1.LName.value;
+    
+    var Email=document.f1.Email.value;
+    var PhoneNo=document.f1.PhoneNo.value;
+    var Address=document.f1.Address.value;
+    var flag=1;
+    var numbers = '/^[0-9]+$/';
+    
+   
+   
+    if (!(/^[a-z A-Z]+$/).test(FName) || document.f1.FName.value==''){  
+            document.getElementById("FNameErr").innerHTML = "Enter First Name";
+            
+           // return false;  
+           flag=0;
+    }else{
+        document.getElementById("FNameErr").innerHTML = "";
+    }
+    if (!(/^[a-zA-Z]+$/).test(LName) || document.f1.LName.value==''){  
+            document.getElementById("LNameErr").innerHTML = "Enter Last Name";
+            //return false;  
+            flag=0;
+    }else{
+        document.getElementById("LNameErr").innerHTML = "";
+        if(!(/^\S{3,}$/.test(FName))){
+             document.getElementById("FNameErr").innerHTML = "Name Should not contain whtespace";
+            flag=0;
+        }
+    }
+    if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/).test(Email))  
+    {  
+        document.getElementById("EmailErr").innerHTML = "Enter Valid Email id";
+            //return false;  
+            flag=0;
+    }else{
+        document.getElementById("EmailErr").innerHTML = "";
+    }  
+    if(!(/^[0-9]+$/).test(PhoneNo)){  
+        document.getElementById("PhoneNoErr").innerHTML="Enter Numeric value only";  
+        //return false;
+        flag=0;
+    }else{
+       document.getElementById("PhoneNoErr").innerHTML="ok";   
+    }
+    if((/^[0-9a-z]+$/).test(Address) || document.f1.Address.value==''){  
+        document.getElementById("AddressErr").innerHTML="Address with pin code";  
+       // return false; 
+       flag=0;
+    }else{
+       document.getElementById("AddressErr").innerHTML="ok";   
+    }
+   
+    if(flag==0){
+    return false;
+    }
+    return Add();
+    return true;
+    
+}  
+ function Add() {
+           
+    
+   
+        
+        var Address = {};
+        
+    var product={};
+    if (localStorage && localStorage.getItem('Address')) {
+         Address = JSON.parse(localStorage.getItem('Address'));
+         
+    }else{
+        Address = {};
+        
+    }
+    localStorage.setItem('Address', JSON.stringify(Address));
+   
+    Address.FName = document.f1.FName.value;
+    Address.LName=document.f1.LName.value;
+    Address.Mob = document.f1.PhoneNo.value;
+    Address.Email = document.f1.Email.value;
+    Address.Address= document.f1.Address.value;
+    localStorage.setItem('Address', JSON.stringify(Address));
+         
+         
+    
+    
+    return true;
+}
+</script>
+
+       <form name="f1" action="/order-list" onsubmit="return formValidate()" method="post">  
+   
+            <center> <table>
+                    
+                <tr>
+                    <th>First Name</th>
+                    <td><input type="text" name="FName" value='' /></td>
+                    <td><span class="Err" id="FNameErr">*</span></td>
+                </tr>
+                <tr>
+                    <th>Last Name</th>
+                    <td><input type="text" name="LName" value='' /></td>
+                    <td><span class="Err" id="LNameErr">*</span></td>
+                </tr>
+                <tr>
+                    <th>Email_id</th>
+                    <td><input type="text" name="Email" value='' /></td>
+                    <td><span class="Err" id="EmailErr">*</span></td>
+                </tr>
+                <tr>
+                    <th>Mobile Number</th>
+                    <td><input type="text" name="PhoneNo" value='' /></td>
+                    <td><span class="Err" id="PhoneNoErr">*</span></td>
+                </tr>
+                <tr>
+                    <th>Address</th>
+                    <td><textarea cols="18" rows="4" name="Address"></textarea></td>
+                    <td><span class="Err" id="AddressErr">*</span></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td colspan="2"><input type="submit" name="Submit" value="DELIVER HERE" />
+                    <input type="reset" value="Reset" /></td>
+                </tr>
+             </table>
+                    
+            </center>
+        </form>
+    </body>
+</html>

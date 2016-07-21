@@ -1,0 +1,799 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"use",
+				"user"
+			],
+			[
+				"re",
+				"redirect"
+			],
+			[
+				"is",
+				"isLoggedIn"
+			],
+			[
+				"user",
+				"username"
+			],
+			[
+				"prod",
+				"prod_id"
+			],
+			[
+				"pd",
+				"pdname"
+			],
+			[
+				"req",
+				"require"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"res",
+				"response"
+			],
+			[
+				"log",
+				"logger"
+			],
+			[
+				"u",
+				"urlencodedParser"
+			],
+			[
+				"p",
+				"passport"
+			],
+			[
+				"Con",
+				"console"
+			],
+			[
+				"lo",
+				"log"
+			],
+			[
+				"con",
+				"console"
+			],
+			[
+				"us",
+				"username"
+			],
+			[
+				"mongo",
+				"mongodb"
+			],
+			[
+				"r",
+				"rows"
+			],
+			[
+				"in",
+				"input	Tag"
+			],
+			[
+				"fu",
+				"function"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "app.js",
+			"settings":
+			{
+				"buffer_size": 1950,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "views/home.ejs",
+			"settings":
+			{
+				"buffer_size": 397,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/Home/Downloads/easy-node-authentication-local/app/routes.js",
+			"settings":
+			{
+				"buffer_size": 2507,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "routes/index.js",
+			"settings":
+			{
+				"buffer_size": 3265,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "// config/passport.js\n\n// load all the things we need\nvar LocalStrategy   = require('passport-local').Strategy;\nlet mySql = require(\"./mysql.js\")();\nlet Sql=require('./sql.js');\nvar sql=new Sql();\n// load up the user model\n\n\n// expose this function to our app using module.exports\nmodule.exports = function(passport) {\n\n	// =========================================================================\n    // passport session setup ==================================================\n    // =========================================================================\n    // required for persistent login sessions\n    // passport needs ability to serialize and unserialize users out of session\n\n    // used to serialize the user for the session\n    passport.serializeUser(function(user, done) {\n       done(null, user[0].user_id);\n    });\n\n    // used to deserialize the user\n    passport.deserializeUser(function(id, done) {\n        mySql.query('SELECT * FROM Users where user_id=?', [id], function(err, user) {\n            if (err) throw err;\n            done(err, user);\n            \n        });\n        \n    });\n\n 	// =========================================================================\n    // LOCAL SIGNUP ============================================================\n    // =========================================================================\n    // we are using named strategies since we have one for login and one for signup\n	// by default, if there was no name, it would just be called 'local'\n    passport.use('local-signup', new LocalStrategy({\n        // by default, local strategy uses username and password, we will override with email\n        usernameField : 'usn',\n        passwordField : 'psw',\n        passReqToCallback : true // allows us to pass back the entire request to the callback\n    },\n    function(req, usn, psw, done) {\n\n        // find a user whose email is the same as the forms email\n        // we are checking to see if the user trying to login already exists\n        mySql.query('SELECT * FROM Users where username=? and psw=?', [usn, psw], function(err, user) {\n            if (err) return done(err);\n            if(user.length>0){\n                return done(null, false, req.flash('signupMessage', 'That email is already taken.'));\n            }else{\n                sql.SignUp(usn,psw,function(callback){\n                    if(callback){\n                        sql.Login(usn,psw,function(user){\n                            console.log(\"Signup::\",user);\n                            return done(null, user);\n\n                        })\n                    }\n                    \n                });\n               \n            }\n            \n            \n        });\n        // User.findOne({ 'local.email' :  email }, function(err, user) {\n        //     // if there are any errors, return the error\n        //     if (err)\n        //         return done(err);\n\n        //     // check to see if theres already a user with that email\n        //     if (user) {\n        //         return done(null, false, req.flash('signupMessage', 'That email is already taken.'));\n        //     } else {\n\n        //         // if there is no user with that email\n        //         // create the user\n        //         var newUser            = new User();\n\n        //         // set the user's local credentials\n        //         newUser.local.email    = email;\n        //         newUser.local.password = newUser.generateHash(password); // use the generateHash function in our user model\n\n        //         // save the user\n        //         newUser.save(function(err) {\n        //             if (err)\n        //                 throw err;\n        //             return done(null, newUser);\n        //         });\n        //     }\n\n        // });\n\n    }));\n    \n\n    // =========================================================================\n    // LOCAL LOGIN =============================================================\n    // =========================================================================\n    // we are using named strategies since we have one for login and one for signup\n    // by default, if there was no name, it would just be called 'local'\n\n    passport.use('local-login', new LocalStrategy({\n        // by default, local strategy uses username and password, we will override with email\n        usernameField : 'usn',\n        passwordField : 'psw',\n        passReqToCallback : true // allows us to pass back the entire request to the callback\n    },\n    function(req, usn, psw, done) { // callback with email and password from our form\n\n        // find a user whose email is the same as the forms email\n        // we are checking to see if the user trying to login already exists\n        mySql.query('SELECT * FROM Users where username=? and psw=?', [usn, psw], function(err, user) {\n            if (err) return done(err);\n            if(user.length>0){\n                return done(null,user);\n            }else{\n               return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash\n \n            }\n            \n            \n        });\n        \n\n    }));\n\n};\n",
+			"file": "config/passport.js",
+			"file_size": 5195,
+			"file_write_time": 131134852060000000,
+			"settings":
+			{
+				"buffer_size": 5192,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/Home/Downloads/easy-node-authentication-local/config/passport.js",
+			"settings":
+			{
+				"buffer_size": 5240,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/Home/Downloads/easy-node-authentication-local/views/signup.ejs",
+			"settings":
+			{
+				"buffer_size": 1203,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "config/sql.js",
+			"settings":
+			{
+				"buffer_size": 1006,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "bin/www",
+			"settings":
+			{
+				"buffer_size": 1598,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/Home/Downloads/easy-node-authentication-local/views/login.ejs",
+			"settings":
+			{
+				"buffer_size": 1168,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "views/Login.ejs",
+			"settings":
+			{
+				"buffer_size": 2346,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "s%3Ah5qEwAH9lAqsfecpm32ULYgw.lXaeJXw%2Fcy7dtfAVqk77iw1O0IFC1mK60T%2FOMvl15Fo	",
+			"settings":
+			{
+				"buffer_size": 77,
+				"line_ending": "Unix",
+				"name": "s%3Ah5qEwAH9lAqsfecpm32ULYgw.lXaeJXw%2Fcy7dtfAVqk7"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 347.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"inst",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc59f460fa1548d1514676163dafc88'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/Home/ShoppingCart",
+		"/Users/Home/ShoppingCart/bin",
+		"/Users/Home/ShoppingCart/config",
+		"/Users/Home/ShoppingCart/public",
+		"/Users/Home/ShoppingCart/routes",
+		"/Users/Home/ShoppingCart/views",
+		"/Users/Home/Downloads/easy-node-authentication-local",
+		"/Users/Home/Downloads/easy-node-authentication-local/app",
+		"/Users/Home/Downloads/easy-node-authentication-local/app/models",
+		"/Users/Home/Downloads/easy-node-authentication-local/config",
+		"/Users/Home/Downloads/easy-node-authentication-local/views"
+	],
+	"file_history":
+	[
+		"/Users/Home/ShoppingCart/views/index.ejs",
+		"/Users/Home/Downloads/easy-node-authentication-local/app/routes.js",
+		"/Users/Home/ShoppingCart/config/passport.js",
+		"/Users/Home/Downloads/easy-node-authentication-local/config/passport.js",
+		"/Users/Home/ShoppingCart/views/Login.ejs",
+		"/Users/Home/ShoppingCart/routes/index.js",
+		"/Users/Home/ShoppingCart/config/local.js",
+		"/Users/Home/ShoppingCart/app.js",
+		"/Users/Home/ShoppingCart/views/view_cart.ejs",
+		"/Users/Home/ShoppingCart/views/checkout.ejs",
+		"/Users/Home/sp-node-mysql/app.js",
+		"/Users/Home/easy-node-authentication-local/views/index.ejs",
+		"/Users/Home/sp-node-mysql/routes.js",
+		"/Users/Home/sp-node-mysql/View_products.ejs",
+		"/Users/Home/sp-node-mysql/server.js",
+		"/Users/Home/Desktop/Cart/test.js",
+		"/Users/Home/easy-node-authentication-local/app/models/user.js",
+		"/Users/Home/easy-node-authentication-local/app/routes.js",
+		"/Users/Home/easy-node-authentication-local/config/passport.js",
+		"/Users/Home/sp-node-mysql/passport.js",
+		"/Users/Home/sp-node-mysql/Login.html",
+		"/Users/Home/easy-node-authentication-local/views/login.ejs",
+		"/Users/Home/sp-node-mysql/sql.js",
+		"/Users/Home/Documents/node/app/routes.js",
+		"/Users/Home/Documents/node/config/passport.js",
+		"/Users/Home/Documents/node/config/database.js",
+		"/Users/Home/Documents/node/server.js",
+		"/Users/Home/sp-node-mysql/mysql.js",
+		"/Users/Home/Documents/node/mysql-model.js",
+		"/Users/Home/sp-node-mysql/package.json",
+		"/Users/Home/Documents/node/Package.json",
+		"/Users/Home/Documents/node/{",
+		"/Users/Home/Downloads/chat-example-master/README.md",
+		"/Users/Home/Downloads/chat-example-master/package.json",
+		"/Users/Home/firstNode/test.js",
+		"/Users/Home/node_modules/setprototypeof/node_modules/setprototypeof/index.js",
+		"/Users/Home/Downloads/chat-example-master/index.js",
+		"/Users/Home/node_modules/send/package.json",
+		"/Users/Home/NetBeansProjects/ShoppingCart/ShoppingCart-war/web/js/jquery1",
+		"/Users/Home/Downloads/startbootstrap-portfolio-item-1.0.4/index.html",
+		"/Users/Home/firstNode/package.json",
+		"/Users/Home/NetBeansProjects/ShoppingCart/ShoppingCart-war/web/View_User_Cart.jsp",
+		"/Users/Home/NetBeansProjects/ShoppingCart/build/ShoppingCart-war.war",
+		"/Applications/XAMPP/xamppfiles/htdocs/home_session.php",
+		"/Users/Home/Downloads/startbootstrap-heroic-features-1.0.4/index.html",
+		"/Applications/XAMPP/xamppfiles/htdocs/menu.css",
+		"/Users/Home/Downloads/startbootstrap-shop-homepage-1.0.4/index.html",
+		"/Users/Home/Downloads/startbootstrap-shop-homepage-1.0.4/css/shop-homepage.css",
+		"/Users/Home/Downloads/startbootstrap-heroic-features-1.0.4/js/bootstrap.js",
+		"/Users/Home/Downloads/startbootstrap-heroic-features-1.0.4/js/bootstrap.min.js",
+		"/Users/Home/Downloads/startbootstrap-heroic-features-1.0.4/js/jquery.js",
+		"/Users/Home/Downloads/Eshopper/index.html"
+	],
+	"find":
+	{
+		"height": 23.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"rs1.getString(\"",
+			"<%=rs1.getString(\"",
+			"__dirname + ",
+			"app",
+			"layout",
+			"jade",
+			"rs.",
+			"rs.getInt(\"",
+			"rs.getString(\"",
+			"\")%>",
+			"rs.getString(\"",
+			"_body",
+			"findOne",
+			"Sql",
+			"Routes",
+			"Login",
+			"View_Products",
+			"Product Details",
+			"Product",
+			"About"
+		],
+		"highlight": false,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"rs[0].",
+			"router",
+			"rs[i].",
+			"rs.",
+			"rs",
+			"rs."
+		],
+		"reverse": false,
+		"show_context": false,
+		"use_buffer2": false,
+		"whole_word": true,
+		"wrap": false
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "app.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1950,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								384,
+								384
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 481.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "views/home.ejs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 397,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								381,
+								381
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/Users/Home/Downloads/easy-node-authentication-local/app/routes.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2507,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1936,
+								1936
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "routes/index.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3265,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								419,
+								419
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 744.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "config/passport.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5192,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								794,
+								794
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 344.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "/Users/Home/Downloads/easy-node-authentication-local/config/passport.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5240,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4996,
+								4996
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1366.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "/Users/Home/Downloads/easy-node-authentication-local/views/signup.ejs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1203,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "config/sql.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1006,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "bin/www",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1598,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								275,
+								275
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 721.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "/Users/Home/Downloads/easy-node-authentication-local/views/login.ejs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1168,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								565,
+								660
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "views/Login.ejs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2346,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								888,
+								888
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 77,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								77,
+								77
+							]
+						],
+						"settings":
+						{
+							"auto_name": "s%3Ah5qEwAH9lAqsfecpm32ULYgw.lXaeJXw%2Fcy7dtfAVqk7",
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 100.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "ShppingCart.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 307.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

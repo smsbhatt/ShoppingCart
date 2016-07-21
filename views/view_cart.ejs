@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="/javascripts/jquery.js"></script>
+         <link href="/stylesheets/css/bootstrap.min.css" rel="stylesheet">
+       <link href="/stylesheets/css/shop-item.css" rel="stylesheet">
+        <title>JSP Page</title>
+    </head>
+    <body  onload="return retreive()">
+       
+      
+    <script type="text/javascript">
+        
+        function removefromCart(pid){
+            if (localStorage && localStorage.getItem('cart')) {
+           
+            var cart = JSON.parse(localStorage.getItem('cart'));
+           
+            delete cart[pid];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            return true;
+    }
+    
+            
+        }
+         function total(qty,price,pid){ 
+          var to= parseInt($('#total').text());
+            var tot=qty*price;
+            var total=0;
+           
+            document.getElementById("Total"+pid).innerHTML = tot.toString() ;
+            
+            var cartitem = JSON.parse(localStorage.getItem('cart'));
+             for(var key in cartitem){
+                 total=total+(parseInt($('#Total'+key).text()));
+             }
+           
+            document.getElementById("total").innerHTML = total.toString() ; 
+            var cart = JSON.parse(localStorage.getItem('cart'));            
+        
+        cart[pid].qty=qty;
+        console.log(cart)
+        localStorage.setItem('cart', JSON.stringify(cart));
+            return true;
+           
+        }
+        function retreive(){
+                var Total=0;
+                var s="";
+                var subtot=0;
+            if(localStorage.getItem('cart')) {
+             var cartitem = JSON.parse(localStorage.getItem('cart'));
+           //  console.log('cart:::',cartitem);
+             
+             s+="<center><h3>Your Cart Details</h3><form action='/checkout' name='f1' method='GET'><table border='2' class='table'><tr><th>Product Name</th><th>Brand</th><th>Qty</th><th>price</th><th>About</th><th>Total</th><th colspan='2'>Operations</th></tr> ";
+             for(var key in cartitem){
+                 Total=cartitem[key].price*cartitem[key].qty;
+                 
+                 s+= "<tr>";
+                  s+= "<td><input value="+cartitem[key].name+" type='text' name='Pname'></td>";
+                  s+= "<td><input value="+cartitem[key].brand+" type='text' name='Bname'></td>";
+                  s+= "<td><select onchange='return total(this.value,"+cartitem[key].price+","+key+")' name='qty'>";
+                   for(var i=1;i<=cartitem[key].quantity;i++){
+                  s+= "<option ";if(parseInt(cartitem[key].qty)==i){ s+=" selected='selected'";} 
+                  s+="value="+i+">"+i+"</option>";
+              }
+                  s+= "  </select></td>";
+                  s+= "<td><input value="+cartitem[key].price+" type='text' name='Price'></td> ";
+                  s+= "<td><input value="+cartitem[key].About+" type='text' name='About'></td>";
+                  s+= "<td><span id='Total"+key+"'>"+Total+"</span></td>";
+                  s+= "<td><a href='' onclick='return removefromCart("+key+")'>Remove from Cart</a><br></td></tr>";
+                 subtot+=Total;
+             }
+             
+                 
+             s+="<tr><td colspan='8'>";
+                if(subtot>0){
+                    s+=" <input type='Submit' value='Checkout' name='btn'>";
+                }
+                     s+="Rs.<span id='total'>"+subtot+"</span></td></tr></table><span id='Msg'>*</span></form></center>";
+             
+             
+        } else {
+            cartitem = {}; 
+            s+="<center><h3>Your Cart is empty</h3></center>";
+        }
+       // console.log('cart',cartitem);
+        //cartitem[prod_id] = qty;
+        
+        document.getElementById("txt").innerHTML=s;
+        return true;
+        }
+// Put the object into storage
+       // localStorage.setItem('Cart', JSON.stringify(cartitem));
+         
+            
+    
+       
+  
+      
+        </script>
+       
+        <div id="txt"></div>
+       
+    </body>
+</html>

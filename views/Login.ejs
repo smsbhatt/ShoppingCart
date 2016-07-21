@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+        </title>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+            <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" media="screen" rel="stylesheet">
+                <link href="/stylesheets/style.css" rel="stylesheet"/>
+            </link>
+            <script src="https://cdn.socket.io/socket.io-1.2.0.js">
+            </script>
+            <script src="http://code.jquery.com/jquery-1.11.1.js">
+            </script>
+        </meta>
+    </head>
+    <body>
+        <div class="container">
+            <h1>
+                Login Page
+            </h1>
+            <p class="lead">
+                <% if (message.length > 0) { %>
+                         <div class="alert alert-danger"><%= message %></div>
+                <% } %>
+            </p>
+            <br>
+                <form action="/login" method="post" role="form" style="max-width: 300px;">
+                    <div class="form-group">
+                        <input class="form-control" name="usn" placeholder="Enter Username" type="text"/>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" name="psw" placeholder="Password" type="password"/>
+                    </div>
+                    <button class="btn btn-default" type="submit">
+                        Submit
+                    </button>
+                    <a href="/">
+                        <button class="btn btn-primary" type="button">
+                            Cancel
+                        </button>
+                    </a>
+                </form>
+            </br>
+        </div>
+    </body>
+    <script src="http://code.jquery.com/jquery.js">
+    </script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js">
+    </script>
+</html>
+<!-- <script>
+      var socket = io();
+      $('form').submit(function(){
+        socket.emit('validate', {'uname':$('#usn').val(),'pass':$('#psw').val()});
+        $('#m').val('');
+        return true;
+      });
+      // socket.on('Success', function(msg){
+      //   if (msg) {
+      //       window.location.replace('/home');
+      //   }else{
+      //       window.location.replace('/');
+      //   }
+      // });
+      
+    </script> -->

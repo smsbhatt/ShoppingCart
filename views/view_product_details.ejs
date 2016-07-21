@@ -1,0 +1,173 @@
+
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link href="/stylesheets/css/bootstrap.min.css" rel="stylesheet">
+		   <link href="/stylesheets/css/shop-item.css" rel="stylesheet">
+		<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+        <title>JSP Page</title>
+    </head>
+  
+    
+    <body>
+        <script>
+            function cart() {
+     
+        if (window.XMLHttpRequest) {
+            // code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp = new XMLHttpRequest();
+        } else {
+            // code for IE6, IE5
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                document.getElementById("crtshow").innerHTML = xmlhttp.responseText;
+            }
+        };
+        xmlhttp.open("GET","View_User_Cart.jsp",true);
+        xmlhttp.send();
+        
+    
+    return ;
+}
+function addToCart(product,pid) {
+    // Retrieve the cart object from local storage
+    if (localStorage && localStorage.getItem('cart')) {
+        var cart = JSON.parse(localStorage.getItem('cart'));            
+
+        cart[pid]=product;
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+    } 
+}
+         function Add(prod_id,name,brand,qty,price,about) {
+           
+    
+   
+        
+        var cart = {};
+        cart[prod_id] = [];
+    var product={};
+    if (localStorage && localStorage.getItem('cart')) {
+        var cart = JSON.parse(localStorage.getItem('cart'));
+
+        if (cart[prod_id] != undefined) {
+             document.getElementById("CartErr" + prod_id).innerHTML = 'Item is already in Cart';
+             return;
+         }
+    }else{
+        cart = {};
+        cart[prod_id]= [];
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    product.id = prod_id;
+    product.name = name;
+    product.brand=brand;
+    product.price = price;
+    product.quantity = qty;
+    product.About= about;
+    product.qty= 1;
+    addToCart(product,prod_id);
+         
+         document.getElementById("CartErr").innerHTML='Added to cart';
+    
+    
+    return true;
+}
+    </script>
+    
+    
+         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+             <a class="navbar-brand" href="Home.jsp">myShop</a>    
+            <ul class="nav navbar-nav">
+                    
+                    
+                    <li>
+                        <a href="/login">Login</a>
+                    </li>
+                    <li>
+                        <a href="/Signup">SignUp</a>
+                    </li>
+                    <li>
+                        <a href="/View_Guest_Cart">Cart</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+         </nav>
+                    
+                    
+                    
+               
+    
+     
+            
+            
+        <div class="container">
+
+        <div class="row">
+
+            <div class="col-md-5">
+            <img src="./Images/<%=rs[0].url%>" style="width:450px;height:380px;" alt="Product"/>
+            </div>
+        <div class="col-md-7">  
+        <div class="row">
+          <div class="thumbnail">
+              
+        <form name="f1" action="" method="GET"> 
+            <center> 
+                <h3>Product Details</h3>
+                <table>
+                <tr>
+                    <th>Category</th> <td> 
+                        <%=rs[0].cname%>
+                    </td>
+                    <td><span >*</span></td>
+              </tr>
+              <tr>
+              <th> Brand </th>  
+              <td><%=rs[0].bname%></td>
+               <td><span >*</span></td>
+              </tr>
+              
+              <tr>
+                  <th>Product Name</th>  <td> <%=rs[0].pdname%></td>
+                  <td><span id="PNameErr">*</span></td>
+              </tr>
+              <tr>
+              <th>Quantity </th><td> <%=rs[0].qty%>(InStock)</td>
+               <td><span id="QtyErr">*</span></td>
+              </tr>
+               <tr>
+              <th>Price </th><td> <%=rs[0].price%></td>
+               <td><span id="priceErr">*</span></td>
+              </tr>
+              <tr>
+                  <th>About</th>  <td><%=rs[0].About%></td>
+                   <td><span id="AboutErr">*</span></td>
+              </tr>
+              <tr>
+                  <%if(rs[0].qty>0){%> <td><input type="button" name="cart" onclick="return Add(<%=rs[0].prod_id%>,'<%=rs[0].pdname%>','<%=rs[0].bname%>',<%=rs[0].qty%>,<%=rs[0].price%>,'<%=rs[0].About%>')" value="Add to Cart"/><%}else{%><h3>Out of order</h3><%}%></td>
+           
+            </tr>
+           
+            </table>
+            <h3> <span id="CartErr<%=rs[0].prod_id%>"></span></td></h3>
+            <h3> <span id="CartErr"></span></td></h3>
+            </center>
+            
+        </form>
+            
+         
+        </div>
+        </div>
+        </div>
+      </div>
+    </div>
+       
+    
+    </body>
+</html>
