@@ -8,6 +8,7 @@ var passport = require('passport');
 var flash    = require('connect-flash');
 var session      = require('express-session');
 
+
 var routes = require('./routes/index');
 var users = require('./routes/users');
 require('./config/passport')(passport);
@@ -22,9 +23,9 @@ app.set('view engine', 'ejs');
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 app.use(bodyParser());
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+//app.use(logger('dev'));
+//app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -36,7 +37,7 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 app.use('/', routes);
 app.use('/users', users);
-app.use('/login', routes);
+//app.use('/login', routes);
 //app.use(sql());
 
 // catch 404 and forward to error handler
@@ -45,7 +46,7 @@ app.use(function(req, res, next) {
   err.status = 404;
   next(err);
 });
-
+ 
 // error handlers//
 
 // development error handler

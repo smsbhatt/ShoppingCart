@@ -3,6 +3,9 @@ var router = express.Router();
 var sql=require('./sql.js');
 var Sql=new sql();
 var passport = require('passport');
+var http = require('http').Server(express);
+var io = require('socket.io')(http);
+
 
 
 /* GET home page. */
@@ -28,8 +31,15 @@ var passport = require('passport');
         res.render('Login',{ message: req.flash('loginMessage') });
 
     });
+    router.post('/signup', passport.authenticate('local-signup', {
+        successRedirect: '/home', // redirect to the secure profile section
+        failureRedirect: '/signup', // redirect back to the signup page if there is an error
+        failureFlash: true // allow flash messages
+    }));
+    
     router.get('/signup', function(req, res) {
         // render the page and pass in any flash data if it exists
+       
         res.render('signup.ejs', {
             message: req.flash('signupMessage')
         });
@@ -44,8 +54,13 @@ var passport = require('passport');
         res.render('order_list.ejs');
     })
     router.post('/shipping',function(req,res){
+        console.log("ship");
+      
+
         res.render('shipping.ejs');
-    })
+    });
+    
+   
     // router.post('/login', function(req, res) {
     // 	// console.log(req.body.user.usn);
     	

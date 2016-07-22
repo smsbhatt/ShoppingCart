@@ -7,10 +7,10 @@
             <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" media="screen" rel="stylesheet">
                 <link href="/stylesheets/style.css" rel="stylesheet"/>
             </link>
-            <script src="https://cdn.socket.io/socket.io-1.2.0.js">
-            </script>
-            <script src="http://code.jquery.com/jquery-1.11.1.js">
-            </script>
+            <script src="socket.io/socket.io.js"></script>
+            <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+           
+            
         </meta>
     </head>
     <body>
@@ -43,18 +43,18 @@
             </br>
         </div>
     </body>
-    <script src="http://code.jquery.com/jquery.js">
+    
     </script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js">
     </script>
 </html>
-<!-- <script>
-      var socket = io();
-      $('form').submit(function(){
-        socket.emit('validate', {'uname':$('#usn').val(),'pass':$('#psw').val()});
-        $('#m').val('');
-        return true;
-      });
+<script>
+      // var socket = io();
+      // $('form').submit(function(){
+      //   socket.emit('Ship','hi');
+       
+      //   return true;
+      // });
       // socket.on('Success', function(msg){
       //   if (msg) {
       //       window.location.replace('/home');
@@ -63,4 +63,4 @@
       //   }
       // });
       
-    </script> -->
+    </script>

@@ -4,7 +4,8 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        
+         <script src="socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
         <title>JSP Page</title>
     </head>
     <body  onload="return retreive()">
@@ -31,7 +32,7 @@
              var cartitem = JSON.parse(localStorage.getItem('cart'));
            //  console.log('cart:::',cartitem);
              
-             s+="<center><h3>Your Shipping Details</h3><form action='/shipping' name='f1' method='post'><table border='2'><tr><th>Product Name</th><th>Brand</th><th>Qty</th><th>price</th><th>About</th><th>Total</th><th>Address</th></tr> ";
+             s+="<center><h3>Your Shipping Details</h3><form action='/Shipping' onsubmit='return Ship()' name='f1' method='post'><table border='2'><tr><th>Product Name</th><th>Brand</th><th>Qty</th><th>price</th><th>About</th><th>Total</th><th>Address</th></tr> ";
              for(var key in cartitem){
                  Total=cartitem[key].price*cartitem[key].qty;
                  
@@ -68,10 +69,20 @@
          
             
     
+       var socket = io();
+      function Ship(){
+        socket.emit('Ship', {'cart':localStorage.getItem('cart'),'Address':localStorage.getItem('Address')});
+        
+        return true;
+      }
+      socket.on('Ship', function(msg){
        
+      });
+      
   
       
         </script>
+
         
         <div id="txt"></div>
         
